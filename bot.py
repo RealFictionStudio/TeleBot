@@ -18,11 +18,13 @@ class Event:
         self.e_group = "def"
         self.e_subject = "def"
 
-    def from_str(self, smth: list[str]):
+    @staticmethod
+    def from_str(smth: list[str]):
         # TODO Dodać sprawdzanie czy ilość argumentów się zgadza, czy argumenty spełniają requirementy
-        self.e_date = date(int(smth[0]), int(smth[1]), int(smth[2]))
-        self.e_group = smth[3]
-        self.e_subject = smth[4]
+        e_date = date(int(smth[0]), int(smth[1]), int(smth[2]))
+        e_group = smth[3]
+        e_subject = smth[4]
+        return [e_date, e_group, e_subject]
 
 
 class BotPlayer(Client):
@@ -43,12 +45,12 @@ client = BotPlayer(intents=intents)
 bot = commands.Bot(command_prefix="/", intents=intents)
 
 
-@bot.command(description="Adds described event to calendar")
-@app_commands.describe(
-    message="You need to specify: Date(dd:mm:yy), Group, Subject, type of event"
+@bot.command(
+    description="Adds described event to calendar",
+    help="You need to specify: Date(dd:mm:yy), Group, Subject, type of event",
 )
 async def add_event(ctx, *args):
-    """Adds described event to calendar"""
+    """Adds described event to calendar using sqlite db"""
     pass
 
 
