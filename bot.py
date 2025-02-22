@@ -1,5 +1,5 @@
 import discord
-from discord import Client, Intents, app_commands, Interaction
+from discord import Client, Intents, Interaction
 from discord.ext import commands
 
 
@@ -15,9 +15,6 @@ class BotPlayer(commands.Bot):
         for guild_obj in self.guilds_list:
             gid = discord.Object(id=guild_obj.id)
 
-            @client.tree.command(name="add_event", description="Adds described event to calendar", guild=gid)
-            async def add_event_to_calendar(interaction: Interaction, date: str, group: int, subject: str, type_of_event: str) -> None:
-                await interaction.response.send_message(" ".join(map(str, [date, group, subject, type_of_event])))
             try:
                 synced = await self.tree.sync(guild=gid)
             except Exception as e:
