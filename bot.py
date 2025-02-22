@@ -1,14 +1,34 @@
-from discord import Client, Intents, Message, app_commands, Interaction
+import discord
+from discord import Client, Intents, app_commands, Interaction
 from discord.ext import commands
-from dotenv import load_dotenv
-from os import getenv
-
-load_dotenv()
 
 
-class BotPlayer(Client):
+class BotPlayer(commands.Bot):
+    def __init__(self):
+        intents = Intents.default()
+        intents.message_content = True
+        super().__init__(command_prefix="!", intents=intents)
+        # self.tree = app_commands(self)
+
     async def on_ready(self):
-        print(f'READY PLAYER {self.user}')
+        self.guilds_list = [guild async for guild in self.fetch_guilds(limit=150)]
+        for guild_obj in self.guilds_list:
+            gid = discord.Object(id=guild_obj.id)
+
+            @client.tree.command(name="add_event", description="Adds described event to calendar", guild=gid)
+            async def add_event_to_calendar(interaction: Interaction, date: str, group: int, subject: str, type_of_event: str) -> None:
+                await interaction.response.send_message(" ".join(map(str, [date, group, subject, type_of_event])))
+            try:
+                synced = await self.tree.sync(guild=gid)
+            except Exception as e:
+                print("ERROR SYNCING commands, aborting")
+                print(e)
+                exit(3)
+
+            print(
+                f"SYNCED {len(synced)} COMMANDS TO GUILD {guild_obj.name} {guild_obj.id}")
+
+        print(f'\t\tREADY PLAYER {self.user}')
 
     async def on_message(self, message):
         print(f'Message from {message.author}: {message.content}')
@@ -16,14 +36,4 @@ class BotPlayer(Client):
             await message.channel.send("bolb")
 
 
-intents = Intents.default()
-intents.message_content = True
-client = BotPlayer(intents=intents)
-tree = app_commands(client)
-client.tree = tree
-
-
-@client.tree.command("add_event", description="Adds described event to calendar")
-@app_commands.describe(message="You need to specify: Date(dd:mm:yy), Group, Subject, type of event")
-async def add_event_to_calendar(interaction: Interaction, date: str, group: int, subject: str, type_of_event: str) -> None:
-    await Interaction.response.send_message(date, group, subject, type_of_event)
+client = BotPlayer()
