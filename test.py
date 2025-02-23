@@ -4,12 +4,20 @@ from db_handler.manager import *
 
 def test_database():
     initialize_database(reset=True)
-    add_event(date(2025, 1, 12), 1, "PRM", "Kol 1")
-    add_event(date(2024, 12, 29), 2, "ANL", "Kol 1")
-    add_event(date(2025, 3, 30), 3, "PSYG", "Kol 1")
+
+    list_of_events = [
+        (date(2025, 1, 12), 1, "PRM", "Kol 1"),
+        (date(2024, 12, 29), 2, "ANL", "Kol 1"),
+        (date(2025, 3, 30), 3, "PSYG", "Kol 1"),
+    ]
+    g = []
+
+    for i in list_of_events:
+        add_event(*i)
+        _ = g.append(f"{i[3]} {i[2]} gr. {i[1]} dzień: {i[0].strftime('%d-%m-%Y')}")
 
     for event in get_events():
-        print(event)
+        assert event in g
 
 
 if __name__ == "__main__":
