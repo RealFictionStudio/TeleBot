@@ -1,14 +1,14 @@
 from datetime import date
-from db_handler import manager
+from db_handler.manager import *
 
 
 def test_database():
-    db = manager.manager()
-    db.add_event(date(1, 1, 1), 1, "PRM", "Kol 1")
-    db.add_event(date(2, 2, 2), 2, "ANL", "Kol 1")
-    db.add_event(date(3, 3, 3), 3, "PSYG", "Kol 1")
+    initialize_database(reset=True)
+    add_event(date(2025, 1, 12), 1, "PRM", "Kol 1")
+    add_event(date(2024, 12, 29), 2, "ANL", "Kol 1")
+    add_event(date(2025, 3, 30), 3, "PSYG", "Kol 1")
 
-    for event in db.get_events():
+    for event in get_events():
         print(event)
 
 
