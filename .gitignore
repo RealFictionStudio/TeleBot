@@ -1,5 +1,9 @@
 # DataBases
 *.db
+*.json
+
+#IDEA
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
