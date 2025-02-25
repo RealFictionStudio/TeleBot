@@ -1,9 +1,11 @@
 import discord
-from discord import Client, Intents, Interaction
+from discord import Client, Guild, Intents, Interaction
 from discord.ext import commands
 
 
 class BotPlayer(commands.Bot):
+    guilds_list: list[Guild] = []
+
     def __init__(self):
         intents = Intents.default()
         intents.message_content = True
@@ -23,12 +25,13 @@ class BotPlayer(commands.Bot):
                 exit(3)
 
             print(
-                f"SYNCED {len(synced)} COMMANDS TO GUILD {guild_obj.name} {guild_obj.id}")
+                f"SYNCED {len(synced)} COMMANDS TO GUILD {guild_obj.name} {guild_obj.id}"
+            )
 
-        print(f'\t\tREADY PLAYER {self.user}')
+        print(f"\t\tREADY PLAYER {self.user}")
 
     async def on_message(self, message):
-        print(f'Message from {message.author}: {message.content}')
+        print(f"Message from {message.author}: {message.content}")
         if "blob" in message.content:
             await message.channel.send("bolb")
 
