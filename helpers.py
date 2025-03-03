@@ -11,3 +11,7 @@ def parse_date(s_date: str):
         print("Wrong string given")
     finally:
         return d_date
+
+
+def event_gen(summary: str, desc: str, group: str, subject: str, e_date: date):
+    return

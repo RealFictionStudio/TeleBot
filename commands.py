@@ -95,7 +95,7 @@ class CalendarCMDS(cmds.Cog):
         except:
             print("Something went wrong while changing event.")
 
-        # change google calendar event
+        # Change google calendar event
         # Change the message on discord
 
         print("Changing the event: ")
