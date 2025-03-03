@@ -4,6 +4,8 @@ from discord import Interaction, app_commands
 from discord.app_commands import commands
 from discord.ext import commands as cmds
 from dotenv import load_dotenv
+from db_handler import manager as db_h
+from helpers import parse_date
 
 GROUPS = ["W", "1", "2", "3", "4"]
 SUBJECTS = ["ANL2", "PRM2", "SYCY"]
@@ -40,9 +42,19 @@ class CalendarCMDS(cmds.Cog):
         subject: str,
         event: str,
     ):
-        """Adds described event to calendar"""
+        """Adds described event to the calendar"""
 
-        # Add the record to database
+        p_date = parse_date(e_date)
+
+        if p_date == None:
+            # Send message about wrong date format
+            return
+        try:
+            # Add the record to database
+            db_h.add_event(p_date, group, subject, event)
+        except:
+            print("Something went wrong while adding event.")
+
         # Add event to google calendar
         # Change the message on discord
 
@@ -70,9 +82,19 @@ class CalendarCMDS(cmds.Cog):
         subject: str,
         event: str,
     ):
-        """Chages described event to calendar"""
+        """Chages described event in the calendar"""
 
-        # Change record in database
+        p_date = parse_date(e_date)
+
+        if p_date == None:
+            # Send message about wrong date format
+            return
+        try:
+            # Change the record to database
+            db_h.upd_event(p_date, group, subject, event)
+        except:
+            print("Something went wrong while changing event.")
+
         # change google calendar event
         # Change the message on discord
 
@@ -99,13 +121,23 @@ class CalendarCMDS(cmds.Cog):
         group: str,
         subject: str,
     ):
-        """Deletes described event to calendar"""
+        """Deletes described event from the calendar"""
 
-        # Delete the record from database
+        p_date = parse_date(e_date)
+
+        if p_date == None:
+            # Send message about wrong date format
+            return
+        try:
+            # Delete the record to database
+            db_h.del_event(p_date, group, subject)
+        except:
+            print("Something went wrong while deleting event.")
+
         # Delete google calendar event
         # Change the message on discord
 
         print("Deleting the event: ")
         _ = await interaction.response.send_message(
-            f"Will delete {group} in {subject} at {e_date}"
+            f"Will delete event from {group} in {subject} at {e_date}"
         )
