@@ -1,6 +1,4 @@
-from datetime import date
 from os import getenv
-from typing_extensions import override
 from discord import Intents, Interaction, Message, app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
