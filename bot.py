@@ -1,5 +1,6 @@
+from typing import override
 import discord
-from discord import Client, Guild, Intents, Interaction
+from discord import Guild, Intents, Message
 from discord.ext import commands
 
 
@@ -30,10 +31,11 @@ class BotPlayer(commands.Bot):
 
         print(f"\t\tREADY PLAYER {self.user}")
 
-    async def on_message(self, message):
+    @override
+    async def on_message(self, message: Message):
         print(f"Message from {message.author}: {message.content}")
         if "blob" in message.content:
-            await message.channel.send("bolb")
+            _ = await message.channel.send("bolb")
 
 
 client = BotPlayer()

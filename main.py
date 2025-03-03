@@ -1,7 +1,9 @@
 from bot import client
 from os import getenv, getcwd, listdir, path
 from dotenv import load_dotenv
-load_dotenv()
+
+if not load_dotenv():
+    print("No new env variables")
 
 
 def load_plugins(plugin_path: str = getcwd()):
@@ -14,7 +16,7 @@ def load_plugins(plugin_path: str = getcwd()):
 
 
 def main():
-    client.run(getenv('DISCORD_TOKEN'))
+    client.run(getenv("DISCORD_TOKEN"))
 
 
 if __name__ == "__main__":

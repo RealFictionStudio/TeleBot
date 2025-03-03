@@ -1,5 +1,6 @@
 from datetime import date
 from db_handler.manager import *
+from google_handler.manager import main as g_main
 
 
 def test_database():
@@ -20,5 +21,11 @@ def test_database():
         assert event in g
 
 
+def test_google_api():
+    g_main()
+
+
 if __name__ == "__main__":
-    test_database()
+    test_google_api()
+    # test_database()
+    pass
