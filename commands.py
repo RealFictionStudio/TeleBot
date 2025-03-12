@@ -1,11 +1,13 @@
 from os import getenv
 from typing import final
-from discord import Interaction, app_commands
+from discord import Interaction, Message, app_commands
 from discord.app_commands import commands
 from discord.ext import commands as cmds
 from dotenv import load_dotenv
+from requests.models import HTTPError
 from db_handler import manager as db_h
-from helpers import parse_date
+from google_handler.manager import create_event
+from helpers import dc_msg_gen, parse_date
 
 GROUPS = ["W", "1", "2", "3", "4"]
 SUBJECTS = ["ANL2", "PRM2", "SYCY"]
@@ -19,9 +21,11 @@ GUILDS = [int(i) for i in (getenv("GUILDS") or "").split(",")]
 
 @final
 class CalendarCMDS(cmds.Cog):
-    def __init__(self, bot: cmds.Bot) -> None:
+    _las_member = None
+
+    def __init__(self, bot: cmds.Bot, msg: Message) -> None:
         self.bot = bot
-        self._las_member = None
+        self.msg = msg
 
     @commands.command()
     @app_commands.guilds(*GUILDS)
@@ -32,15 +36,15 @@ class CalendarCMDS(cmds.Cog):
         ],
     )
     @app_commands.describe(
-        date="A date in format of dd(sep)mm(sep)yy where (sep) = - or / or :"
+        e_date="A date in format of dd(sep)mm(sep)yy where (sep) = - or / or :"
     )
     async def add_event(
         self,
         interaction: Interaction,
         e_date: str,
-        group: str,
+        group: int,
         subject: str,
-        event: str,
+        desc: str,
     ):
         """Adds described event to the calendar"""
 
@@ -50,17 +54,21 @@ class CalendarCMDS(cmds.Cog):
             # Send message about wrong date format
             return
         try:
+            # Add event to google calendar
+            ggl_id_a, ggl_id_g = create_event(p_date, group, subject, desc)
+
             # Add the record to database
-            db_h.add_event(p_date, group, subject, event)
+            db_h.add_event(ggl_id_a, ggl_id_g, p_date, group, subject, desc)
+
+            # Change the message on discord
+            _ = await self.msg.edit(content=dc_msg_gen())
+
         except:
             print("Something went wrong while adding event.")
 
-        # Add event to google calendar
-        # Change the message on discord
-
         print("Adding event: ")
         _ = await interaction.response.send_message(
-            f"There will be {event} for {group} in {subject} at {e_date}"
+            f"There will be {desc} for {group} in {subject} at {e_date}"
         )
 
     @commands.command()
@@ -72,15 +80,17 @@ class CalendarCMDS(cmds.Cog):
         ],
     )
     @app_commands.describe(
-        date="A date in format of dd(sep)mm(sep)yy where (sep) is - or / or :"
+        e_date="A date in format of dd(sep)mm(sep)yy where (sep) is - or / or :"
     )
     async def change_event(
         self,
         interaction: Interaction,
+        event_id: int,
         e_date: str,
         group: str,
         subject: str,
         event: str,
+        upd_desc: str,
     ):
         """Chages described event in the calendar"""
 
@@ -91,12 +101,15 @@ class CalendarCMDS(cmds.Cog):
             return
         try:
             # Change the record to database
-            db_h.upd_event(p_date, group, subject, event)
+            ggl_id_a, ggl_id_g = db_h.upd_event(event_id, p_date, subject, upd_desc)
+
+            # Change google calendar event and retreve the id-s
+
+            # Change the message on discord
+            _ = await self.msg.edit(content=dc_msg_gen())
+
         except:
             print("Something went wrong while changing event.")
-
-        # Change google calendar event
-        # Change the message on discord
 
         print("Changing the event: ")
         _ = await interaction.response.send_message(
@@ -112,32 +125,22 @@ class CalendarCMDS(cmds.Cog):
         ],
     )
     @app_commands.describe(
-        date="A date in format of dd(sep)mm(sep)yy where (sep) is - or / or :"
+        e_date="A date in format of dd(sep)mm(sep)yy where (sep) is - or / or :"
     )
-    async def delete_event(
-        self,
-        interaction: Interaction,
-        e_date: str,
-        group: str,
-        subject: str,
-    ):
+    async def delete_event(self, interaction: Interaction, event_id: int):
         """Deletes described event from the calendar"""
-
-        p_date = parse_date(e_date)
-
-        if p_date == None:
-            # Send message about wrong date format
-            return
         try:
             # Delete the record to database
-            db_h.del_event(p_date, group, subject)
-        except:
-            print("Something went wrong while deleting event.")
+            ggl_id_a, ggl_id_g = db_h.del_event(event_id)
 
-        # Delete google calendar event
-        # Change the message on discord
+            # Delete google calendar event
+
+            # Change the message on discord
+            _ = await self.msg.edit(content=dc_msg_gen())
+        except HTTPError as err:
+            print("Err: ", err)
 
         print("Deleting the event: ")
         _ = await interaction.response.send_message(
-            f"Will delete event from {group} in {subject} at {e_date}"
+            f"Will delete event with id {event_id}"
         )
