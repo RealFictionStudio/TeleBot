@@ -1,12 +1,15 @@
 from datetime import date, timedelta
 from db_handler.manager import get_events
 
+GROUPS = ["Grupa 1", "Grupa 2", "Grupa 3", "Grupa 4", "Wykłady"]
+
 
 def parse_date(s_date: str):
     d_date = None
     sep = filter(lambda x: x in s_date, ["-", "/", ":"]).__next__()
     try:
         my_date = [int(i) for i in s_date.split(sep)]
+        my_date.reverse()
         d_date = date(*my_date)
     except ValueError as err:
         print("Wrong date given")
@@ -34,5 +37,8 @@ def dc_msg_gen():
     msg = "Terminarz:\n"
     events = get_events()
     for event in events:
-        msg += "\n" + ",".join(event)
+        msg += (
+            "\n"
+            + f"ID: {event[0]}, Odbędzie się {event[4]} dla {GROUPS[event[2]]} z przedmiotu {event[3]} w dniu {event[1]}"
+        )
     return msg
