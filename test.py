@@ -27,5 +27,6 @@ def test_google_api():
 
 if __name__ == "__main__":
     test_google_api()
+    print("test")
     # test_database()
     pass
